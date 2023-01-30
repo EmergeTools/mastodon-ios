@@ -1,0 +1,22 @@
+name: Emerge Tools
+
+on:
+  push:
+    branches:
+    - test/commit_sha
+
+# macOS environments: https://github.com/actions/virtual-environments/tree/main/images/macos
+
+jobs:
+  itay_test:
+    name: Test Ruby Env Var
+    runs-on: macos-12
+    steps:
+      - name: checkout
+        uses: actions/checkout@v2
+      - name: Test
+        env: 
+          COMMIT_SHA: ${{ github.event.pull_request.head.sha }}
+        continue-on-error: false
+        run: |
+          ruby .github/scripts/ruby.rb
