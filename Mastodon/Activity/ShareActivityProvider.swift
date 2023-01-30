@@ -7,6 +7,7 @@
 
 import UIKit
 
+
 protocol ShareActivityProvider {
     var activities: [Any] { get }
     var applicationActivities: [UIActivity] { get }
