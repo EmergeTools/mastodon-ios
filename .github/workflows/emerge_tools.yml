@@ -61,12 +61,10 @@ jobs:
           p12-password: ${{ secrets.P12_PASSWORD }}
       - name: Rename Bundle Identifier
         env: 
-          SUFFIX: .release
+          ORIGINAL_BUNDLE: com.emerge.mastodon
+          NEW_BUNDLE: com.emerge.mastodon.release
         run: |
-          plutil -replace CFBundleIdentifier -string "\$(PRODUCT_BUNDLE_IDENTIFIER)${SUFFIX}" Mastodon/Info.plist
-          plutil -replace CFBundleIdentifier -string "\$(PRODUCT_BUNDLE_IDENTIFIER)${SUFFIX}" MastodonIntent/Info.plist
-          plutil -replace CFBundleIdentifier -string "\$(PRODUCT_BUNDLE_IDENTIFIER)${SUFFIX}" NotificationService/Info.plist
-          plutil -replace CFBundleIdentifier -string "\$(PRODUCT_BUNDLE_IDENTIFIER)${SUFFIX}" ShareActionExtension/Info.plist
+          sed -i '' "s/${ORIGINAL_BUNDLE}/${NEW_BUNDLE}/g" Mastodon.xcodeproj/project.pbxproj
       - name: Build for Testing
         env:
           SCHEME: Release
