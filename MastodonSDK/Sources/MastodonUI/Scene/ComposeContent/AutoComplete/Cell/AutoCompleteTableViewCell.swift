@@ -42,7 +42,7 @@ public final class AutoCompleteTableViewCell: UITableViewCell {
     let subtitleLabel: UILabel = {
         let label = UILabel()
         label.font = UIFontMetrics(forTextStyle: .subheadline).scaledFont(for: .systemFont(ofSize: 15, weight: .regular), maximumPointSize: 20)
-        label.textColor = Asset.Colors.Label.secondary.color
+        label.textColor = UIColor.blue // Asset.Colors.Label.secondary.color
         label.text = "subtitle"
         return label
     }()
