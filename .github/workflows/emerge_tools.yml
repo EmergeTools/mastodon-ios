@@ -59,6 +59,14 @@ jobs:
           keychain: build-p12
           p12-file-base64: ${{ secrets.BUILD_CERTIFICATE_BASE64 }}
           p12-password: ${{ secrets.P12_PASSWORD }}
+      - name: Rename Bundle Identifier
+        env: 
+          SUFFIX: .release
+        run: |
+          plutil -replace CFBundleIdentifier -string "\$(PRODUCT_BUNDLE_IDENTIFIER)${SUFFIX}" Mastodon/Info.plist
+          plutil -replace CFBundleIdentifier -string "\$(PRODUCT_BUNDLE_IDENTIFIER)${SUFFIX}" MastodonIntent/Info.plist
+          plutil -replace CFBundleIdentifier -string "\$(PRODUCT_BUNDLE_IDENTIFIER)${SUFFIX}" NotificationService/Info.plist
+          plutil -replace CFBundleIdentifier -string "\$(PRODUCT_BUNDLE_IDENTIFIER)${SUFFIX}" ShareActionExtension/Info.plist
       - name: Build for Testing
         env:
           SCHEME: Release
