@@ -116,6 +116,7 @@ extension AutoCompleteTableViewCell {
         ])
         
         separatorLine.translatesAutoresizingMaskIntoConstraints = false
+        separatorLine.backgroundColor = UIColor.red
         contentView.addSubview(separatorLine)
         NSLayoutConstraint.activate([
             separatorLine.leadingAnchor.constraint(equalTo: contentView.leadingAnchor),
