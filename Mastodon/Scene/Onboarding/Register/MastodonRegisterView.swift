@@ -20,7 +20,6 @@ struct MastodonRegisterView: View {
     var body: some View {
         ScrollView(.vertical) {
             let margin: CGFloat = 20
-
             VStack(alignment: .leading, spacing: 16) {
                 TextField(L10n.Scene.Register.Input.DisplayName.placeholder.localizedCapitalized, text: $viewModel.name)
                     .textContentType(.name)
