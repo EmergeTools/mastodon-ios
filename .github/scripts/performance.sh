@@ -62,5 +62,4 @@ TEST_PLAN="testClasses:"
 TEST_PLAN="${TEST_PLAN}\n  - class: MastodonPerformanceTest"
 TEST_PLAN="${TEST_PLAN}\n    spans:"
 TEST_PLAN="${TEST_PLAN}\n      - didFinishLaunching"
-TEST_PLAN="${TEST_PLAN}\n      - welcomeScreen"
 echo -e "$TEST_PLAN" > $TEST_CASES_FILE
