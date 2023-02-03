@@ -167,6 +167,12 @@ extension WelcomeViewController {
                 self.navigationItem.leftBarButtonItem = needsShowDismissEntry ? self.dismissBarButtonItem : nil
             }
             .store(in: &disposeBag)
+        
+        NotificationCenter.default.post(name: Notification.Name("EmergeMetricEnded"), object: nil, userInfo: [
+            "metric": "welcomeScreen",
+            "use_process_start": true,
+            "timestamp": Date().timeIntervalSince1970
+        ])
     }
     
     override func viewDidLayoutSubviews() {
