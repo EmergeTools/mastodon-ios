@@ -16,7 +16,7 @@ class SearchRecommendCollectionHeader: UIView {
     let titleLabel: UILabel = {
         let label = UILabel()
         label.textColor = Asset.Colors.Label.primary.color
-
+        label.textColor = .blue
         label.font = .systemFont(ofSize: 20, weight: .semibold)
         label.adjustsFontSizeToFitWidth = true
         label.minimumScaleFactor = 0.6
