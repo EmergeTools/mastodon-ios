@@ -32,3 +32,4 @@ To update or add new translations, the workflow is as follows:
 
 [crowdin-mastodon-ios]: https://crowdin.com/project/mastodon-for-ios
 [crowdin-mastodon-ios-discussions]: https://crowdin.com/project/mastodon-for-ios/discussions
+
