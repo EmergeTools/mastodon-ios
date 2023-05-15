@@ -89,7 +89,7 @@ struct SearchRecommendCollectionHeader_Previews: PreviewProvider {
         Group {
             UIViewPreview {
                 let cell = SearchRecommendCollectionHeader()
-                cell.titleLabel.text = "Trending in your timeline"
+                cell.titleLabel.text = "Trending in your timeline2"
                 cell.descriptionLabel.text = "Hashtags that are getting quite a bit of attention among people you follow"
                 cell.seeAllButton.setTitle("See All", for: .normal)
                 return cell
@@ -99,7 +99,11 @@ struct SearchRecommendCollectionHeader_Previews: PreviewProvider {
     }
     
     static var previews: some View {
-        fatalError("Test Error")
+        Group {
+            controls.colorScheme(.light).previewDisplayName("Search Recommended Collection Header - Light")
+            controls.colorScheme(.dark).previewDisplayName("Search Recommended Collection Header - Dark")
+        }
+        .background(Color.gray)
     }
 }
 
