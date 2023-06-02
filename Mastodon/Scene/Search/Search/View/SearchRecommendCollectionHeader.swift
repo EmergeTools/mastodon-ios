@@ -12,6 +12,9 @@ import MastodonCore
 import MastodonUI
 import MastodonLocalization
 
+protocol MyTestProtocol {
+}
+
 class SearchRecommendCollectionHeader: UIView {
     let titleLabel: UILabel = {
         let label = UILabel()
@@ -89,7 +92,7 @@ struct SearchRecommendCollectionHeader_Previews: PreviewProvider {
         Group {
             UIViewPreview {
                 let cell = SearchRecommendCollectionHeader()
-                cell.titleLabel.text = "Trending in your timeline2"
+                cell.titleLabel.text = "Trending in your timeline4"
                 cell.descriptionLabel.text = "Hashtags that are getting quite a bit of attention among people you follow"
                 cell.seeAllButton.setTitle("See All", for: .normal)
                 return cell
