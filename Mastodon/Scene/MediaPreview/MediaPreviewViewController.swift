@@ -186,7 +186,7 @@ extension MediaPreviewViewController {
     @objc private func altButtonPressed(_ sender: UIButton) {
         guard let alt = viewModel.altText else { return }
 
-        present(AltViewController(alt: alt, sourceView: sender), animated: true)
+        present(AltTextViewController(alt: alt, sourceView: sender), animated: true)
     }
 }
 
@@ -265,7 +265,7 @@ extension MediaPreviewViewController: MediaPreviewImageViewControllerDelegate {
     
     func mediaPreviewImageViewController(_ viewController: MediaPreviewImageViewController, tapGestureRecognizerDidTrigger tapGestureRecognizer: UITapGestureRecognizer) {
         let location = tapGestureRecognizer.location(in: viewController.previewImageView.imageView)
-        let isContainsTap = viewController.previewImageView.imageView.frame.contains(location)
+        let isContainsTap = viewController.previewImageView.imageView.bounds.contains(location)
         
         if isContainsTap {
             self.viewModel.showingChrome.toggle()

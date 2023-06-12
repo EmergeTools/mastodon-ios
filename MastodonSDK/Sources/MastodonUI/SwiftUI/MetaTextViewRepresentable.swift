@@ -47,7 +47,7 @@ public struct MetaTextViewRepresentable: UIViewRepresentable {
         ]
         metaText.linkAttributes = [
             .font: font,
-            .foregroundColor: Asset.Colors.brand.color,
+            .foregroundColor: Asset.Colors.Brand.blurple.color,
         ]
                 
         metaText.paragraphStyle = NSMutableParagraphStyle()
@@ -62,6 +62,10 @@ public struct MetaTextViewRepresentable: UIViewRepresentable {
     public func updateUIView(_ metaTextView: MetaTextView, context: Context) {
         // update layout
         context.coordinator.widthLayoutConstraint.constant = width
+        
+        // trigger layout engine update to adjust to text height
+        metaText.textView.setNeedsLayout()
+        metaText.textView.layoutIfNeeded()
     }
 
     public func makeCoordinator() -> Coordinator {

@@ -11,6 +11,7 @@ import SwiftUI
 import Combine
 import PhotosUI
 import MastodonCore
+import NaturalLanguage
 
 public final class ComposeContentViewController: UIViewController {
     
@@ -82,11 +83,6 @@ public final class ComposeContentViewController: UIViewController {
         )
         return view
     }()
-
-    deinit {
-        os_log(.info, log: .debug, "%{public}s[%{public}ld], %{public}s", ((#file as NSString).lastPathComponent), #line, #function)
-    }
-
 }
 
 extension ComposeContentViewController {
@@ -211,7 +207,16 @@ extension ComposeContentViewController {
             self.tableView.contentInset.bottom = padding - self.view.safeAreaInsets.bottom
             self.tableView.verticalScrollIndicatorInsets.bottom = padding - self.view.safeAreaInsets.bottom
             UIView.animate(withDuration: 0.3) {
-                self.composeContentToolbarViewBottomLayoutConstraint.constant = endFrame.height
+                guard let window = self.view.window else { return }
+                // ref: https://developer.apple.com/documentation/uikit/uiresponder/1621578-keyboardframeenduserinfokey
+                let localKeyboardFrame = self.view.convert(endFrame, from: window.screen.coordinateSpace)
+                let intersection = self.view.bounds.intersection(localKeyboardFrame)
+                if intersection.isEmpty {
+                    self.composeContentToolbarViewBottomLayoutConstraint.constant = 0
+                } else {
+                    self.composeContentToolbarViewBottomLayoutConstraint.constant = self.view.bounds.maxY - intersection.minY
+                }
+                
                 self.view.layoutIfNeeded()
             }
         })
@@ -330,9 +335,55 @@ extension ComposeContentViewController {
         viewModel.$isEmojiActive.assign(to: &composeContentToolbarViewModel.$isEmojiActive)
         viewModel.$isContentWarningActive.assign(to: &composeContentToolbarViewModel.$isContentWarningActive)
         viewModel.$visibility.assign(to: &composeContentToolbarViewModel.$visibility)
+        viewModel.$isVisibilityButtonEnabled.assign(to: &composeContentToolbarViewModel.$isVisibilityButtonEnabled)
         viewModel.$maxTextInputLimit.assign(to: &composeContentToolbarViewModel.$maxTextInputLimit)
         viewModel.$contentWeightedLength.assign(to: &composeContentToolbarViewModel.$contentWeightedLength)
         viewModel.$contentWarningWeightedLength.assign(to: &composeContentToolbarViewModel.$contentWarningWeightedLength)
+        
+        let languageRecognizer = NLLanguageRecognizer()
+        viewModel.$content
+        // run on background thread since NLLanguageRecognizer seems to do CPU-bound work
+        // that we don’t want on main
+            .receive(on: DispatchQueue.global(qos: .utility))
+            .sink { [unowned self] content in
+                if content.isEmpty {
+                    DispatchQueue.main.async {
+                        self.composeContentToolbarViewModel.suggestedLanguages = []
+                    }
+                    return
+                }
+                defer { languageRecognizer.reset() }
+                languageRecognizer.processString(content)
+                let hypotheses = languageRecognizer
+                    .languageHypotheses(withMaximum: 3)
+                DispatchQueue.main.async {
+                    self.composeContentToolbarViewModel.suggestedLanguages = hypotheses
+                        .filter { _, probability in probability > 0.1 }
+                        .keys
+                        .map(\.rawValue)
+
+                    if let bestLanguage = hypotheses.max(by: { $0.value < $1.value }), bestLanguage.value > 0.99 {
+                        self.composeContentToolbarViewModel.highConfidenceSuggestedLanguage = bestLanguage.key.rawValue
+                    } else {
+                        self.composeContentToolbarViewModel.highConfidenceSuggestedLanguage = nil
+                    }
+                }
+            }
+            .store(in: &disposeBag)
+        
+        viewModel.$language.assign(to: &composeContentToolbarViewModel.$language)
+        composeContentToolbarViewModel.$language
+            .dropFirst()
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] language in
+                guard let self = self else { return }
+                if self.viewModel.language != language {
+                    self.viewModel.language = language
+                }
+            }
+            .store(in: &disposeBag)
+
+        viewModel.$recentLanguages.assign(to: &composeContentToolbarViewModel.$recentLanguages)
         
         // bind back to source due to visibility not update via delegate
         composeContentToolbarViewModel.$visibility
@@ -507,7 +558,7 @@ extension ComposeContentViewController: ComposeContentToolbarViewDelegate {
                     self.viewModel.setContentTextViewFirstResponderIfNeeds()
                 }
             }
-        case .visibility:
+        case .visibility, .language:
             assertionFailure()
         }
     }

@@ -48,6 +48,7 @@ extension ProfileFieldSection {
                 let formatter = DateFormatter()
                 formatter.dateStyle = .medium
                 formatter.timeStyle = .none
+                formatter.timeZone = TimeZone(identifier: "UTC")
                 value = formatter.string(from: date)
                 emojiMeta = [:]
                 verified = false
@@ -68,7 +69,7 @@ extension ProfileFieldSection {
             }
             
             // set value
-            let linkColor = verified ? Asset.Scene.Profile.About.bioAboutFieldVerifiedText.color : Asset.Colors.brand.color
+            let linkColor = verified ? Asset.Scene.Profile.About.bioAboutFieldVerifiedText.color : Asset.Colors.Brand.blurple.color
             do {
                 let mastodonContent = MastodonContent(content: value, emojis: emojiMeta)
                 let metaContent = try MastodonMetaContent.convert(document: mastodonContent)
@@ -92,12 +93,17 @@ extension ProfileFieldSection {
                 formatter.dateStyle = .medium
                 formatter.timeStyle = .short
                 let dateString = formatter.string(from: verifiedAt)
-                cell.checkmark.accessibilityLabel = L10n.Scene.Profile.Fields.Verified.long(dateString)
+                let longLabel = L10n.Scene.Profile.Fields.Verified.long(dateString)
+                cell.checkmark.accessibilityLabel = longLabel
+                cell.accessibilityValue = "\(cell.valueMetaLabel.backedString), \(longLabel)"
                 cell.checkmarkPopoverString = L10n.Scene.Profile.Fields.Verified.short(dateString)
             } else {
                 cell.checkmark.isHidden = true
                 cell.checkmarkPopoverString = nil
+                cell.accessibilityValue = cell.valueMetaLabel.backedString
             }
+
+            cell.accessibilityLabel = cell.keyMetaLabel.backedString
 
             cell.delegate = configuration.profileFieldCollectionViewCellDelegate
         }

@@ -120,7 +120,7 @@ extension MetaLabel {
             
         case .autoCompletion:
             font = UIFontMetrics(forTextStyle: .headline).scaledFont(for: .systemFont(ofSize: 17, weight: .semibold), maximumPointSize: 22)
-            textColor = Asset.Colors.brand.color
+            textColor = Asset.Colors.Brand.blurple.color
             
         case .accountListName:
             font = UIFontMetrics(forTextStyle: .headline).scaledFont(for: .systemFont(ofSize: 17, weight: .regular), maximumPointSize: 22)
@@ -148,8 +148,22 @@ extension MetaLabel {
         ]
         linkAttributes = [
             .font: font,
-            .foregroundColor: Asset.Colors.brand.color
+            .foregroundColor: Asset.Colors.Brand.blurple.color
         ]
+    }
+
+    public var backedString: String {
+        let string = textStorage.string
+        let nsString = NSMutableString(string: string)
+        textStorage.enumerateAttribute(
+            .attachment,
+            in: NSRange(location: 0, length: textStorage.length),
+            options: [.reverse])
+        { value, range, _ in
+            guard let attachment = value as? MetaAttachment else { return }
+            nsString.replaceCharacters(in: range, with: attachment.string)
+        }
+        return nsString as String
     }
 
 }

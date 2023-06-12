@@ -200,6 +200,12 @@ extension HomeTimelineViewController {
             }
             .store(in: &disposeBag)
         
+        context.publisherService.statusPublishResult.sink { result in
+            if case .success(.edit) = result {
+                self.viewModel.hasPendingStatusEditReload = true
+            }
+        }.store(in: &disposeBag)
+        
         context.publisherService.$currentPublishProgress
             .receive(on: DispatchQueue.main)
             .sink { [weak self] progress in
@@ -234,6 +240,19 @@ extension HomeTimelineViewController {
             .sink { [weak self] isEmpty in
                 if isEmpty {
                     self?.showEmptyView()
+
+                    let userDoesntFollowPeople: Bool
+                    if let managedObjectContext = self?.context.managedObjectContext,
+                       let me = self?.authContext.mastodonAuthenticationBox.authenticationRecord.object(in: managedObjectContext)?.user {
+                        userDoesntFollowPeople = me.followersCount == 0
+                    } else {
+                        userDoesntFollowPeople = true
+                    }
+
+                    if (self?.viewModel.presentedSuggestions == false) && userDoesntFollowPeople {
+                        self?.findPeopleButtonPressed(self)
+                        self?.viewModel.presentedSuggestions = true
+                    }
                 } else {
                     self?.emptyView.removeFromSuperview()
                 }
@@ -279,8 +298,6 @@ extension HomeTimelineViewController {
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
         
-        viewModel.viewDidAppear.send()
-
         if let timestamp = viewModel.lastAutomaticFetchTimestamp {
             let now = Date()
             if now.timeIntervalSince(timestamp) > 60 {
@@ -338,7 +355,7 @@ extension HomeTimelineViewController {
             let button = HighlightDimmableButton()
             button.titleLabel?.font = UIFontMetrics(forTextStyle: .headline).scaledFont(for: .systemFont(ofSize: 15, weight: .semibold))
             button.setTitle(L10n.Common.Controls.Actions.manuallySearch, for: .normal)
-            button.setTitleColor(Asset.Colors.brand.color, for: .normal)
+            button.setTitleColor(Asset.Colors.Brand.blurple.color, for: .normal)
             button.addTarget(self, action: #selector(HomeTimelineViewController.manuallySearchButtonPressed(_:)), for: .touchUpInside)
             return button
         }()
@@ -354,6 +371,7 @@ extension HomeTimelineViewController {
         bottomPaddingView.translatesAutoresizingMaskIntoConstraints = false
         NSLayoutConstraint.activate([
             topPaddingView.heightAnchor.constraint(equalTo: bottomPaddingView.heightAnchor, multiplier: 0.8),
+            manuallySearchButton.heightAnchor.constraint(greaterThanOrEqualToConstant: 20),
         ])
 
         let buttonContainerStackView = UIStackView()
@@ -368,9 +386,10 @@ extension HomeTimelineViewController {
     }
 }
 
+//MARK: - Actions
 extension HomeTimelineViewController {
     
-    @objc private func findPeopleButtonPressed(_ sender: PrimaryActionButton) {
+    @objc private func findPeopleButtonPressed(_ sender: Any?) {
         let suggestionAccountViewModel = SuggestionAccountViewModel(context: context, authContext: viewModel.authContext)
         suggestionAccountViewModel.delegate = viewModel
         _ = coordinator.present(
@@ -381,20 +400,18 @@ extension HomeTimelineViewController {
     }
     
     @objc private func manuallySearchButtonPressed(_ sender: UIButton) {
-        os_log(.info, log: .debug, "%{public}s[%{public}ld], %{public}s", ((#file as NSString).lastPathComponent), #line, #function)
         let searchDetailViewModel = SearchDetailViewModel(authContext: viewModel.authContext)
         _ = coordinator.present(scene: .searchDetail(viewModel: searchDetailViewModel), from: self, transition: .modal(animated: true, completion: nil))
     }
     
     @objc private func settingBarButtonItemPressed(_ sender: UIBarButtonItem) {
-        os_log(.info, log: .debug, "%{public}s[%{public}ld], %{public}s", ((#file as NSString).lastPathComponent), #line, #function)
         guard let setting = context.settingService.currentSetting.value else { return }
         let settingsViewModel = SettingsViewModel(context: context, authContext: viewModel.authContext, setting: setting)
         _ = coordinator.present(scene: .settings(viewModel: settingsViewModel), from: self, transition: .modal(animated: true, completion: nil))
     }
 
     @objc private func refreshControlValueChanged(_ sender: RefreshControl) {
-        guard viewModel.loadLatestStateMachine.enter(HomeTimelineViewModel.LoadLatestState.Loading.self) else {
+        guard viewModel.loadLatestStateMachine.enter(HomeTimelineViewModel.LoadLatestState.LoadingManually.self) else {
             sender.endRefreshing()
             return
         }
@@ -518,6 +535,12 @@ extension HomeTimelineViewController: UITableViewDelegate, AutoGenerateTableView
     }
 
     // sourcery:end
+    
+    func tableView(_ tableView: UITableView, willDisplay cell: UITableViewCell, forRowAt indexPath: IndexPath) {
+        if indexPath.row == tableView.numberOfRows(inSection: indexPath.section) - 1 {
+            viewModel.timelineDidReachEnd()
+        }
+    }
 }
 
 // MARK: - TimelineMiddleLoaderTableViewCellDelegate

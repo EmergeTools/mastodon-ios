@@ -9,8 +9,9 @@ import os.log
 import UIKit
 import MastodonAsset
 import MastodonLocalization
+import MastodonUI
 
-protocol SearchHistorySectionHeaderCollectionReusableViewDelegate: AnyObject {
+protocol SearchHistorySectionHeaderCollectionReusableViewDelegate: AnyObject, UserViewDelegate {
     func searchHistorySectionHeaderCollectionReusableView(_ searchHistorySectionHeaderCollectionReusableView: SearchHistorySectionHeaderCollectionReusableView, clearButtonDidPressed button: UIButton)
 }
 
@@ -25,6 +26,7 @@ final class SearchHistorySectionHeaderCollectionReusableView: UICollectionReusab
         label.font = UIFontMetrics(forTextStyle: .headline).scaledFont(for: .systemFont(ofSize: 22, weight: .bold))
         label.textColor = Asset.Colors.Label.primary.color
         label.text = L10n.Scene.Search.Searching.recentSearch
+        label.accessibilityTraits.insert(.header)
         return label
     }()
     
@@ -32,6 +34,8 @@ final class SearchHistorySectionHeaderCollectionReusableView: UICollectionReusab
         let button = UIButton(type: .system)
         button.setImage(UIImage(systemName: "xmark.circle.fill"), for: .normal)
         button.tintColor = Asset.Colors.Label.secondary.color
+        button.accessibilityLabel = L10n.Scene.Search.Searching.clear
+
         return button
     }()
     

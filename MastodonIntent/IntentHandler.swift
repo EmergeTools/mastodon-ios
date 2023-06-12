@@ -15,6 +15,12 @@ class IntentHandler: INExtension {
         switch intent {
         case is SendPostIntent:
             return SendPostIntentHandler()
+        case is FollowersCountIntent:
+            return FollowersCountIntentHandler()
+        case is MultiFollowersCountIntent:
+            return MultiFollowersCountIntentHandler()
+        case is HashtagIntent:
+            return HashtagIntentHandler()
         default:
             return self
         }
