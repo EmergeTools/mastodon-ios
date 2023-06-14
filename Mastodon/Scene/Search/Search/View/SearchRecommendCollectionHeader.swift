@@ -89,7 +89,7 @@ struct SearchRecommendCollectionHeader_Previews: PreviewProvider {
         Group {
             UIViewPreview {
                 let cell = SearchRecommendCollectionHeader()
-                cell.titleLabel.text = "Trending in your timeline"
+                cell.titleLabel.text = "Trending in your timeline2"
                 cell.descriptionLabel.text = "Hashtags that are getting quite a bit of attention among people you follow"
                 cell.seeAllButton.setTitle("See All", for: .normal)
                 return cell
