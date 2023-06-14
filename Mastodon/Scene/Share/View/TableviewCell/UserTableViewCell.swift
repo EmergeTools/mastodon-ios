@@ -13,7 +13,7 @@ import MastodonLocalization
 import MastodonUI
 import MastodonSDK
 
-protocol UserTableViewCellDelegate: AnyObject { }
+protocol UserTableViewCellDelegate: UserViewDelegate, AnyObject { }
 
 final class UserTableViewCell: UITableViewCell {
     
@@ -23,9 +23,13 @@ final class UserTableViewCell: UITableViewCell {
     
     let separatorLine = UIView.separatorLine
     
+    var disposeBag = Set<AnyCancellable>()
+
     override func prepareForReuse() {
         super.prepareForReuse()
         
+        delegate = nil
+        disposeBag = Set<AnyCancellable>()
         userView.prepareForReuse()
     }
     
@@ -61,6 +65,8 @@ extension UserTableViewCell {
             separatorLine.bottomAnchor.constraint(equalTo: contentView.bottomAnchor),
             separatorLine.heightAnchor.constraint(equalToConstant: UIView.separatorLineHeight(of: contentView)).priority(.required - 1),
         ])
+
+        userView.accessibilityTraits.insert(.button)
     }
     
 }
