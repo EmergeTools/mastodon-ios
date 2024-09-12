@@ -91,7 +91,7 @@ extension WelcomeViewController {
         definesPresentationContext = true
         preferredContentSize = CGSize(width: 547, height: 678)
         
-        navigationController?.navigationBar.prefersLargeTitles = true
+        navigationController?.navigationBar.prefersLargeTitles = false
         view.overrideUserInterfaceStyle = .light
         
         setupOnboardingAppearance()
