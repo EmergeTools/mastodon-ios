@@ -42,7 +42,7 @@ public final class AutoCompleteTableViewCell: UITableViewCell {
     let subtitleLabel: UILabel = {
         let label = UILabel()
         label.font = UIFontMetrics(forTextStyle: .subheadline).scaledFont(for: .systemFont(ofSize: 15, weight: .regular), maximumPointSize: 20)
-        label.textColor = Asset.Colors.Label.secondary.color
+        label.textColor = UIColor.blue // Asset.Colors.Label.secondary.color
         label.text = "subtitle"
         return label
     }()
@@ -116,6 +116,7 @@ extension AutoCompleteTableViewCell {
         ])
         
         separatorLine.translatesAutoresizingMaskIntoConstraints = false
+        separatorLine.backgroundColor = UIColor.red
         contentView.addSubview(separatorLine)
         NSLayoutConstraint.activate([
             separatorLine.leadingAnchor.constraint(equalTo: contentView.leadingAnchor),
